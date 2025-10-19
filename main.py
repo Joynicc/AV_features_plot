@@ -15,7 +15,7 @@ def load_data(path="./filtered_2025-09-25.parquet"):
         st.error(f"❌ File not found: {path}")
         st.stop()
 
-    df = pd.read_parquet(path, engine="fastparquet")  #df = pd.read_parquet(path)
+    df = pd.read_parquet(path)  #df = pd.read_parquet(path)
 
     if "timestamp" not in df.columns:
         st.error("❌ Missing 'timestamp' column in dataset.")
