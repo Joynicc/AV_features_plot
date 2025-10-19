@@ -9,14 +9,29 @@ st.set_page_config(layout="wide", page_title="AV Sensor Dashboard")
 #st.title("")
 
 
+# @st.cache_data
+# def load_data(path="./filtered_2025-09-25.parquet"):
+#     if not os.path.exists(path):
+#         st.error(f"❌ File not found: {path}")
+#         st.stop()
+#
+#     df = pd.read_parquet(path)  #df = pd.read_parquet(path)
+#
+#     if "timestamp" not in df.columns:
+#         st.error("❌ Missing 'timestamp' column in dataset.")
+#         st.stop()
+#
+#     df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+#     df = df.dropna(subset=["timestamp"])
+#     return df
+
 @st.cache_data
-def load_data(path="./filtered_2025-09-25.parquet"):
+def load_data(path="./input_file_0925.csv"):
     if not os.path.exists(path):
         st.error(f"❌ File not found: {path}")
         st.stop()
 
-    df = pd.read_parquet(path)  #df = pd.read_parquet(path)
-
+    df = pd.read_csv(path)  # Use CSV instead of Parquet
     if "timestamp" not in df.columns:
         st.error("❌ Missing 'timestamp' column in dataset.")
         st.stop()
