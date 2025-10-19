@@ -6,18 +6,17 @@ import os
 
 st.set_page_config(layout="wide", page_title="AV Sensor Dashboard")
 
-#st.title("🚗 AV Sensor Dashboard — Linked Time-Series")
+#st.title("")
 
-# -----------------------------
-# Load data
-# -----------------------------
+
 @st.cache_data
 def load_data(path="./filtered_2025-09-25.parquet"):
     if not os.path.exists(path):
         st.error(f"❌ File not found: {path}")
         st.stop()
 
-    df = pd.read_parquet(path)
+    df = pd.read_parquet(path, engine="fastparquet")  #df = pd.read_parquet(path)
+
     if "timestamp" not in df.columns:
         st.error("❌ Missing 'timestamp' column in dataset.")
         st.stop()
@@ -28,9 +27,6 @@ def load_data(path="./filtered_2025-09-25.parquet"):
 
 df = load_data()
 
-# -----------------------------
-# Define features
-# -----------------------------
 features = [
     "driveSystem_actualSpeed",
     "localization_Roll",
@@ -38,20 +34,13 @@ features = [
     "localization_Pitch"
 ]
 
-# -----------------------------
-# Safe timestamp handling
-# -----------------------------
 min_time_val = df["timestamp"].min()
 max_time_val = df["timestamp"].max()
 
-# Handle both pandas.Timestamp and Python datetime
 min_time = min_time_val.to_pydatetime() if hasattr(min_time_val, "to_pydatetime") else min_time_val
 max_time = max_time_val.to_pydatetime() if hasattr(max_time_val, "to_pydatetime") else max_time_val
 
-# -----------------------------
-# Time filter chart
-# -----------------------------
-#st.markdown("### 🕒 Time Filter (applies to all charts)")
+
 
 fig_filter = px.line(
     df,
@@ -69,9 +58,8 @@ fig_filter.update_xaxes(rangeslider_visible=True)
 
 st.plotly_chart(fig_filter, use_container_width=True)
 
-# -----------------------------
-# Precise time window slider
-# -----------------------------
+
+# time window slider
 time_window = st.slider(
     "Select time window (applies to all plots)",
     min_value=min_time,
@@ -81,17 +69,15 @@ time_window = st.slider(
     step=dt.timedelta(seconds=1),  # 👈 precise 1-second step
 )
 
-# -----------------------------
 # Filter dataset based on selected time
-# -----------------------------
 filtered_df = df[(df["timestamp"] >= time_window[0]) & (df["timestamp"] <= time_window[1])]
 
 st.write(f"**Active range:** {time_window[0]} → {time_window[1]}")
 
-# -----------------------------
+
 # Display all feature plots (with y-axis labels)
-# -----------------------------
-cols = st.columns(2)  # 2×2 grid to fit all charts neatly
+
+cols = st.columns(2)
 
 for i, feature in enumerate(features):
     fig = px.line(
